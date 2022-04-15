@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hajeekn's Auth</title>
+        <script src="https://unpkg.com/@authorizerdev/authorizer-js/lib/authorizer.min.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+          const authorizerRef = new authorizerdev.Authorizer({
+            authorizerURL: `https://auth.hesiy.cn/`,
+            redirectURL: window.location.origin,
+            clientID: 'cb446a27-7cc0-46f8-9961-e7e818dc44b6', // obtain your client id from authorizer dashboard
+          })
+          // use the button selector as per your application
+          const logoutBtn = document.getElementById('logout')
+          logoutBtn.addEventListener('click', async function () {
+            await authorizerRef.logout()
+            window.location.href = '/'
+          })
+          async function onLoad() {
+            const res = await authorizerRef.authorize({
+              response_type: 'code',
+              use_refresh_token: false,
+            })
+            if (res && res.access_token) {
+              // you can use user information here, eg:
+              const user = await authorizerRef.getProfile({
+                Authorization: `Bearer ${res.access_token}`,
+              })
+              const userSection = document.getElementById('user')
+              const logoutSection = document.getElementById('logout-section')
+              logoutSection.classList.toggle('hide')
+              userSection.innerHTML = `Welcome, ${user.email}`
+            }
+          }
+          onLoad()
+        </script>
+        <p>Test</p>
+        <button onclick="onLoad()">Login</button>
+</html>
